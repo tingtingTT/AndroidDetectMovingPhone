@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CMPS121_HW3</string>
+    <string name="app">DidItMove</string>
+    <string name="clear">Clear</string>
+    <string name="exit">Exit</string>
+    <string name="my_service_started">my service started</string>
+</resources>

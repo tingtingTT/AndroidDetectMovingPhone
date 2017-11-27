@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CMPS121_HW3.iml" filepath="$PROJECT_DIR$/CMPS121_HW3.iml" />
+      <module fileurl="file://C:\Users\Tingting Wang\Desktop\cmps121_hw3\CMPS121_HW3\CMPS121_HW3.iml" filepath="C:\Users\Tingting Wang\Desktop\cmps121_hw3\CMPS121_HW3\CMPS121_HW3.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://C:\Users\Tingting Wang\Desktop\cmps121_hw3\CMPS121_HW3\app\app.iml" filepath="C:\Users\Tingting Wang\Desktop\cmps121_hw3\CMPS121_HW3\app\app.iml" />
     </modules>
   </component>
 </project>

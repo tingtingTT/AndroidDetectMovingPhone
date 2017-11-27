@@ -16,6 +16,7 @@ public class MyServiceTask implements Runnable {
     private boolean running;
     private Context context;
     private AtomicLong firstAccelerateTime;
+    private AtomicLong startTime;
 
     private Set<ResultCallback> resultCallbacks = Collections.synchronizedSet(
             new HashSet<ResultCallback>());
@@ -25,6 +26,7 @@ public class MyServiceTask implements Runnable {
     public MyServiceTask(Context _context) {
         context = _context;
         firstAccelerateTime = null;
+        startTime = null;
     }
 
     @Override
@@ -33,10 +35,13 @@ public class MyServiceTask implements Runnable {
         while (running) {
             // Sleep for 30 seconds
             try {
-                Thread.sleep(30000);
+                Thread.sleep(5000);
             } catch (Exception e) {
                 e.getLocalizedMessage();
             }
+
+            // TODO: make a reset function to reset data when pressed CLEAR button
+
             // check if the phone is moved after 30 seconds
             boolean moved = didItMove();
             // Sends it to the UI thread in MainActivity (if MainActivity
@@ -115,6 +120,8 @@ public class MyServiceTask implements Runnable {
 
     public boolean didItMove(){
         // TODO: make a function to check the movement of the phone
+        // TODO: value of d should be start time, it should be set earlier
+        
         Date date = new Date();
         AtomicLong d = new AtomicLong(date.getTime());
         boolean moved = false;

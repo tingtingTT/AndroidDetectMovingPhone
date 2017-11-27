@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.tingting.cmps121_hw3.MainActivity">
+    tools:context="com.example.tingting.cmps121_hw3.MainActivity"
+    tools:layout_editor_absoluteY="81dp">
 
     <Button
         android:id="@+id/clear"
@@ -14,7 +15,8 @@
         android:onClick="onClearButtonClick"
         android:text="@string/clear"
         app:layout_constraintBottom_toTopOf="@+id/exit"
-        app:layout_constraintStart_toStartOf="@+id/exit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text" />
 
     <Button
@@ -25,22 +27,18 @@
         android:onClick="onExitButtonClick"
         android:text="@string/exit"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/clear"
         app:layout_constraintTop_toBottomOf="@+id/clear" />
 
     <TextView
         android:id="@+id/text"
-        android:layout_width="0dp"
+        android:layout_width="248dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="108dp"
-        android:layout_marginEnd="68dp"
-        android:layout_marginStart="68dp"
-        android:layout_marginTop="124dp"
-        android:text="TextView"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginTop="224dp"
+        android:text="Welcome!"
         app:layout_constraintBottom_toTopOf="@+id/clear"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Welcome!" />
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

@@ -7,9 +7,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.example.tingting.cmps121_hw3.MyServiceTask.ResultCallback;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MyService extends Service {
 
@@ -25,6 +28,9 @@ public class MyService extends Service {
 
     // Binder given to clients
     private final IBinder myBinder = new MyBinder();
+
+
+
 
     // Binder class.
     public class MyBinder extends Binder {
@@ -45,6 +51,8 @@ public class MyService extends Service {
         // Display a notification about us starting.  We put an icon in the status bar.
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 //        showMyNotification();
+
+
 
         // Creates the thread running the camera service.
         myTask = new MyServiceTask(getApplicationContext());
@@ -67,6 +75,13 @@ public class MyService extends Service {
         if (!myThread.isAlive()) {
             myThread.start();
         }
+
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wakeLock= powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
+        if((wakeLock != null) && (wakeLock.isHeld() == false))
+        {
+            wakeLock.acquire();
+        }
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
@@ -79,12 +94,24 @@ public class MyService extends Service {
         Log.i(LOG_TAG, "Stopping.");
         // Stops the motion detector.
         myTask.stopProcessing();
+        // TODO: duplicate wake lock??
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wakeLock= powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
+        if(wakeLock.isHeld()){
+            wakeLock.release();
+        }
         Log.i(LOG_TAG, "Stopped.");
     }
 
     // Interface to be able to subscribe to the bitmaps by the service.
     public void releaseResult(ServiceResult result) {
         myTask.releaseResult(result);
+    }
+
+    // function to tell task to update data when clear button is clicked
+    public void resetData( AtomicLong d)
+    {
+        myTask.resetData(d);
     }
 
     public void addResultCallback(ResultCallback resultCallback) {

@@ -16,6 +16,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import com.example.tingting.cmps121_hw3.MyService.MyBinder;
 
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         com.example.tingting.cmps121_hw3.MyServiceTask.ResultCallback{
 
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mUiHandler = new Handler(getMainLooper(), new UiCallback());
         serviceBound = false;
+
         // Prevents the screen from dimming and going to sleep.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
@@ -64,12 +68,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.clear:
                 // clear page
-                // TODO: call service, set startTime to current time, set firstAccelTime to null
+                Date date = new Date();
+                AtomicLong d = new AtomicLong(date.getTime());
+                myService.resetData(d);
                 break;
 
             case R.id.exit:
                 // exit app
-                // TODO: only exit when clicking exit button
                 finish();
                 break;
         }
@@ -77,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onResume() {
+        // TODO: service only stop when user press exit
         super.onResume();
         // Starts the service, so that the service will only stop when explicitly stopped.
         Intent intent = new Intent(this, MyService.class);
@@ -116,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
+        // TODO: do not stop the service
         if (serviceBound) {
             if (myService != null) {
                 myService.removeResultCallback(this);
@@ -124,12 +131,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             unbindService(serviceConnection);
             serviceBound = false;
             // If we like, stops the service.
-            if (true) {
-                Log.i(LOG_TAG, "Stopping.");
-                Intent intent = new Intent(this, MyService.class);
-                stopService(intent);
-                Log.i(LOG_TAG, "Stopped.");
-            }
+//            if (true) {
+//                Log.i(LOG_TAG, "Stopping.");
+//                Intent intent = new Intent(this, MyService.class);
+//                stopService(intent);
+//                Log.i(LOG_TAG, "Stopped.");
+//            }
         }
         super.onPause();
     }

@@ -32,6 +32,11 @@ public class MyServiceTask implements Runnable {
     @Override
     public void run() {
         running = true;
+
+        // set start time when app is open
+        Date date = new Date();
+        startTime = new AtomicLong(date.getTime());
+
         while (running) {
             // Sleep for 30 seconds
             try {
@@ -39,14 +44,22 @@ public class MyServiceTask implements Runnable {
             } catch (Exception e) {
                 e.getLocalizedMessage();
             }
-
-            // TODO: make a reset function to reset data when pressed CLEAR button
-
             // check if the phone is moved after 30 seconds
             boolean moved = didItMove();
             // Sends it to the UI thread in MainActivity (if MainActivity
             // is running).
             Log.i(LOG_TAG, "Getting moved result: " + moved);
+
+            // if the phone is moved, sleep for 30 seconds and then display
+            if(moved == true)
+            {
+                // TODO: change it back to 30 seconds
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    e.getLocalizedMessage();
+                }
+            }
             notifyResultCallback(moved);
         }
     }
@@ -121,13 +134,21 @@ public class MyServiceTask implements Runnable {
     public boolean didItMove(){
         // TODO: make a function to check the movement of the phone
         // TODO: value of d should be start time, it should be set earlier
-        
+
         Date date = new Date();
         AtomicLong d = new AtomicLong(date.getTime());
         boolean moved = false;
         if(firstAccelerateTime != null && (d.get() - firstAccelerateTime.get())/1000 > 30){
+            // if phone is moved, set firstAccelerate time to current time
             moved = true;
+            firstAccelerateTime = d;
         }
         return moved;
+    }
+
+    public void resetData(AtomicLong d) {
+        startTime = d;
+        firstAccelerateTime = null;
+        Log.i(LOG_TAG, "clear button pressed");
     }
 }

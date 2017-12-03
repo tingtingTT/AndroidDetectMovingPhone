@@ -4,20 +4,23 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import com.example.tingting.cmps121_hw3.MyService.MyBinder;
 
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
         com.example.tingting.cmps121_hw3.MyServiceTask.ResultCallback{
@@ -26,10 +29,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public Button clearButton;
     public TextView textView;
 
-    //TODO: wakelock
-
     public static final int DISPLAY_NUMBER = 10;
     private Handler mUiHandler;
+    private SurfaceView mSurfaceView;
+    private SurfaceHolder mSurfaceHolder;
+    private Rect mSurfaceSize;
+
     private static final String LOG_TAG = "MainActivity";
 
     // Service connection variables.
@@ -68,14 +73,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()){
             case R.id.clear:
                 // clear page
-                Date date = new Date();
-                AtomicLong d = new AtomicLong(date.getTime());
-                myService.resetData(d);
+                Log.i("MyService", "clear button pressed");
+                myService.resetData();
                 break;
 
             case R.id.exit:
-                // exit app
                 // stop task, service then activity
+                //Unbinds the service
+                Log.i("MyService", "Unbinding");
+                unbindService(serviceConnection);
+                serviceBound = false;
+
+                // Stops the service.
+                Log.i(LOG_TAG, "Stopping.");
+                Intent intent = new Intent(this, MyService.class);
+                stopService(intent);
+                Log.i(LOG_TAG, "Stopped.");
+
+                // stops activity
                 finish();
                 break;
         }
@@ -83,18 +98,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onResume() {
-        // TODO: service only stop when user press exit
         super.onResume();
         // Starts the service, so that the service will only stop when explicitly stopped.
         Intent intent = new Intent(this, MyService.class);
         startService(intent);
         bindMyService();
+        Log.i(LOG_TAG, "onResume()");
+
+        TextView tv = findViewById(R.id.text);
+        if(myService != null){
+            if (myService.didItMove() == true){
+                Log.i(LOG_TAG, "MOVED");
+                tv.setText("The phone moved!");
+            }
+            else{
+                Log.i(LOG_TAG, "NOT MOVED YET");
+                tv.setText("Everything was quiet");
+            }
+        }
     }
 
     private void bindMyService() {
-        // We are ready to show images, and we should start getting the bitmaps
-        // from the motion detection service.
-        // Binds to the service.
         Log.i(LOG_TAG, "Starting the service");
         Intent intent = new Intent(this, MyService.class);
         Log.i("LOG_TAG", "Trying to bind");
@@ -123,22 +147,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
-        // TODO: do not stop the service
         if (serviceBound) {
             if (myService != null) {
                 myService.removeResultCallback(this);
             }
             Log.i("MyService", "Unbinding");
             unbindService(serviceConnection);
-            // check if unbond
-            serviceBound = false;
-            // If we like, stops the service.
-//            if (true) {
-//                Log.i(LOG_TAG, "Stopping.");
-//                Intent intent = new Intent(this, MyService.class);
-//                stopService(intent);
-//                Log.i(LOG_TAG, "Stopped.");
-//            }
+            if (serviceBound == true){
+                serviceBound = false;
+            }
         }
         super.onPause();
     }
@@ -170,14 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // Displays it.
                 if (result != null) {
                     Log.i(LOG_TAG, "Displaying: " + result.booleanValue);
-                    TextView tv = findViewById(R.id.text);
-                    if (result.booleanValue == true){
-                        tv.setText("The phone moved!");
-                    }
-                    else{
-                        tv.setText("Everything was quiet");
-                    }
-                    // Tell the worker that the bitmap is ready to be reused
                     if (serviceBound && myService != null) {
                         Log.i(LOG_TAG, "Releasing result holder for " + result.booleanValue);
                         myService.releaseResult(result);

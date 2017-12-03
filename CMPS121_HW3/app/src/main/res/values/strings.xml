@@ -4,4 +4,7 @@
     <string name="clear">Clear</string>
     <string name="exit">Exit</string>
     <string name="my_service_started">my service started</string>
+    <string name="notification_title">Random service</string>
+    <string name="my_service_running">The random service is running.</string>
+
 </resources>

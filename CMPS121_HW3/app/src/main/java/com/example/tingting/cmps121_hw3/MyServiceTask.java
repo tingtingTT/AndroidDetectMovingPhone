@@ -15,9 +15,6 @@ public class MyServiceTask implements Runnable {
     public static final String LOG_TAG = "MyService";
     private boolean running;
     private Context context;
-    private AtomicLong firstAccelerateTime;
-    private AtomicLong startTime;
-
 
     private Set<ResultCallback> resultCallbacks = Collections.synchronizedSet(
             new HashSet<ResultCallback>());
@@ -26,41 +23,15 @@ public class MyServiceTask implements Runnable {
 
     public MyServiceTask(Context _context) {
         context = _context;
-        firstAccelerateTime = null;
-        startTime = null;
     }
 
     @Override
     public void run() {
         running = true;
-
-        // set start time when app is open
-        Date date = new Date();
-        startTime = new AtomicLong(date.getTime());
-
         while (running) {
-            // Sleep for 30 seconds
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-                e.getLocalizedMessage();
-            }
-            // check if the phone is moved after 30 seconds
-            boolean moved = didItMove();
-            // Sends it to the UI thread in MainActivity (if MainActivity
-            // is running).
-            Log.i(LOG_TAG, "Getting moved result: " + moved);
-
-            // if the phone is moved, sleep for 30 seconds and then display
-            if (moved == true) {
-                // TODO: change it back to 30 seconds
-                try {
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    e.getLocalizedMessage();
-                }
-            }
-            notifyResultCallback(moved);
+            // TODO: sleep for 30 or not??
+            Date d = new Date();
+            didItMove(d);
         }
     }
 
@@ -71,15 +42,7 @@ public class MyServiceTask implements Runnable {
 
     public void removeResultCallback(ResultCallback resultCallback) {
         Log.i(LOG_TAG, "Removing result callback");
-        // We remove the callback...
         resultCallbacks.remove(resultCallback);
-        // ...and we clear the list of results.
-        // Note that this works because, even though mResultCallbacks is a synchronized set,
-        // its cardinality should always be 0 or 1 -- never more than that.
-        // We have one viewer only.
-        // We clear the buffer, because some result may never be returned to the
-        // free buffer, so using a new set upon reattachment is important to avoid
-        // leaks.
         freeResults.clear();
     }
 
@@ -131,31 +94,19 @@ public class MyServiceTask implements Runnable {
         void onResultReady(ServiceResult result);
     }
 
-    public synchronized boolean didItMove() {
-        // TODO: make a function to check the movement of the phone
-        // TODO: value of d should be start time, it should be set earlier
-        // TODO: change to sync
-
-        Date date = new Date();
-        AtomicLong d = new AtomicLong(date.getTime());
+    // The actual didItMove function, which returns a true if it moved more than 30 seconds ago
+    public boolean didItMove (Date f_time){
+        Log.i(LOG_TAG, "checking didItmove()");
         boolean moved = false;
-        if (firstAccelerateTime != null && (d.get() - firstAccelerateTime.get()) / 1000 > 30) {
-            // if phone is moved, set firstAccelerate time to current time
-            moved = true;
-            firstAccelerateTime = d;
+        Date d = new Date();
+        synchronized (this) {
+            // TODO: change both place back to 30!!!
+            if (f_time != null && ((d.getTime() - f_time.getTime()) / 1000) > 5) {
+                moved = true;
+            }
         }
+        notifyResultCallback(moved);
         return moved;
     }
-
-    public synchronized void resetData(AtomicLong d) {
-        startTime = d;
-        firstAccelerateTime = null;
-        Log.i(LOG_TAG, "clear button pressed");
-    }
-
-    // TODO: onSensorChange:
-    // synchronized(this) {
-           // update
-    //   }
 
 }

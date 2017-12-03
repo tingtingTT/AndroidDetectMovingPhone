@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.exit:
                 // exit app
+                // stop task, service then activity
                 finish();
                 break;
         }
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             Log.i("MyService", "Unbinding");
             unbindService(serviceConnection);
+            // check if unbond
             serviceBound = false;
             // If we like, stops the service.
 //            if (true) {

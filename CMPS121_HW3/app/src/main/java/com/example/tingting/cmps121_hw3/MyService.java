@@ -28,6 +28,7 @@ public class MyService extends Service {
 
     // Binder given to clients
     private final IBinder myBinder = new MyBinder();
+    private PowerManager.WakeLock wakeLock;
 
 
 
@@ -77,7 +78,7 @@ public class MyService extends Service {
         }
 
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock= powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
+         wakeLock= powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
         if((wakeLock != null) && (wakeLock.isHeld() == false))
         {
             wakeLock.acquire();
@@ -95,8 +96,7 @@ public class MyService extends Service {
         // Stops the motion detector.
         myTask.stopProcessing();
         // TODO: duplicate wake lock??
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock= powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakelockTag");
+
         if(wakeLock.isHeld()){
             wakeLock.release();
         }
@@ -126,4 +126,21 @@ public class MyService extends Service {
     public void setTaskState(boolean b) {
         myTask.setTaskState(b);
     }
+
+//    // TODO: show notification
+//    @SuppressWarnings("deprecation")
+//    private void showMyNotification() {
+//
+//        // Creates a notification.
+//        Notification notification = new Notification(
+//                R.mipmap.ic_launcher,
+//                getString(R.string.my_service_started),
+//                System.currentTimeMillis());
+//
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+//        notification.setLatestEventInfo(this, getText(R.string.notification_title),
+//                getText(R.string.my_service_running), pendingIntent);
+//        startForeground(ONGOING_NOTIFICATION_ID, notification);
+//    }
 }

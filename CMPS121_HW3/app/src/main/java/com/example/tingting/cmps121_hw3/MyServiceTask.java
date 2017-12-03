@@ -18,6 +18,7 @@ public class MyServiceTask implements Runnable {
     private AtomicLong firstAccelerateTime;
     private AtomicLong startTime;
 
+
     private Set<ResultCallback> resultCallbacks = Collections.synchronizedSet(
             new HashSet<ResultCallback>());
     private ConcurrentLinkedQueue<ServiceResult> freeResults =
@@ -51,8 +52,7 @@ public class MyServiceTask implements Runnable {
             Log.i(LOG_TAG, "Getting moved result: " + moved);
 
             // if the phone is moved, sleep for 30 seconds and then display
-            if(moved == true)
-            {
+            if (moved == true) {
                 // TODO: change it back to 30 seconds
                 try {
                     Thread.sleep(5000);
@@ -131,14 +131,15 @@ public class MyServiceTask implements Runnable {
         void onResultReady(ServiceResult result);
     }
 
-    public boolean didItMove(){
+    public synchronized boolean didItMove() {
         // TODO: make a function to check the movement of the phone
         // TODO: value of d should be start time, it should be set earlier
+        // TODO: change to sync
 
         Date date = new Date();
         AtomicLong d = new AtomicLong(date.getTime());
         boolean moved = false;
-        if(firstAccelerateTime != null && (d.get() - firstAccelerateTime.get())/1000 > 30){
+        if (firstAccelerateTime != null && (d.get() - firstAccelerateTime.get()) / 1000 > 30) {
             // if phone is moved, set firstAccelerate time to current time
             moved = true;
             firstAccelerateTime = d;
@@ -146,9 +147,15 @@ public class MyServiceTask implements Runnable {
         return moved;
     }
 
-    public void resetData(AtomicLong d) {
+    public synchronized void resetData(AtomicLong d) {
         startTime = d;
         firstAccelerateTime = null;
         Log.i(LOG_TAG, "clear button pressed");
     }
+
+    // TODO: onSensorChange:
+    // synchronized(this) {
+           // update
+    //   }
+
 }

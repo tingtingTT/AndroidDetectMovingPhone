@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initLayout();
+        Intent intent = new Intent(this, MyService.class);
+        startService(intent);
+        bindMyService();
     }
 
     @Override
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.clear:
                 // clear page
                 Log.i("MyService", "clear button pressed");
+                textView.setText("");
                 myService.resetData();
                 break;
 
@@ -81,9 +85,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // stop task, service then activity
                 //Unbinds the service
                 Log.i("MyService", "Unbinding");
-                unbindService(serviceConnection);
-                serviceBound = false;
-
+                if (serviceBound == true){
+                    unbindService(serviceConnection);
+                    serviceBound = false;
+                }
                 // Stops the service.
                 Log.i(LOG_TAG, "Stopping.");
                 Intent intent = new Intent(this, MyService.class);
@@ -100,10 +105,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         // Starts the service, so that the service will only stop when explicitly stopped.
-        Intent intent = new Intent(this, MyService.class);
-        startService(intent);
-        bindMyService();
-        Log.i(LOG_TAG, "onResume()");
+//        Intent intent = new Intent(this, MyService.class);
+//        startService(intent);
+//        bindMyService();
+//        Log.i(LOG_TAG, "onResume()");
 
         TextView tv = findViewById(R.id.text);
         if(myService != null){
@@ -152,8 +157,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 myService.removeResultCallback(this);
             }
             Log.i("MyService", "Unbinding");
-            unbindService(serviceConnection);
             if (serviceBound == true){
+                unbindService(serviceConnection);
                 serviceBound = false;
             }
         }
@@ -186,14 +191,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ServiceResult result = (ServiceResult) message.obj;
                 // Displays it.
                 if (result != null) {
-                    Log.i(LOG_TAG, "Displaying: " + result.booleanValue);
-                    if (serviceBound && myService != null) {
-                        Log.i(LOG_TAG, "Releasing result holder for " + result.booleanValue);
-                        myService.releaseResult(result);
+                    if (result.booleanValue){
+                        Log.i(LOG_TAG, "MOVED");
+                        textView.setText("The phone moved!");
                     }
-                } else {
-                    Log.e(LOG_TAG, "Error: received empty message!");
+                    else{
+                        Log.i(LOG_TAG, "NOT MOVED YET");
+                        textView.setText("Everything was quiet");
+                    }
                 }
+                Log.i(LOG_TAG, "Displaying: " + result.booleanValue);
+                if (serviceBound && myService != null) {
+                    Log.i(LOG_TAG, "Releasing result holder for " + result.booleanValue);
+                    myService.releaseResult(result);
+                }
+            } else {
+                Log.e(LOG_TAG, "Error: received empty message!");
             }
             return true;
         }

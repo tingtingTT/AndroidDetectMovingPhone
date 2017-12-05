@@ -29,9 +29,18 @@ public class MyServiceTask implements Runnable {
     public void run() {
         running = true;
         while (running) {
-            // TODO: sleep for 30 or not??
-            Date d = new Date();
-            didItMove(d);
+            if (MyService.recorded){
+                didItMove(MyService.first_accel_time);
+            }
+            else{
+                try {
+                    Thread.sleep(30000);
+                } catch (Exception e) {
+                    e.getLocalizedMessage();
+                }
+                notifyResultCallback(false);
+
+            }
         }
     }
 
@@ -99,13 +108,12 @@ public class MyServiceTask implements Runnable {
         Log.i(LOG_TAG, "checking didItmove()");
         boolean moved = false;
         Date d = new Date();
-        synchronized (this) {
-            // TODO: change both place back to 30!!!
-            if (f_time != null && ((d.getTime() - f_time.getTime()) / 1000) > 5) {
+        synchronized (this){
+            if (f_time != null && ((d.getTime() - f_time.getTime()) / 1000) > 30) {
                 moved = true;
+                notifyResultCallback(moved);
             }
         }
-        notifyResultCallback(moved);
         return moved;
     }
 

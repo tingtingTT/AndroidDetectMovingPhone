@@ -39,8 +39,8 @@ public class MyService extends Service {
     // variables for detecting move
     private Date T0;
     private Date T1;
-    private Date first_accel_time;
-    private boolean recorded;
+    public static Date first_accel_time;
+    public static boolean recorded;
 
     // Binder class.
     public class MyBinder extends Binder {
@@ -60,7 +60,6 @@ public class MyService extends Service {
 
         // Display a notification about us starting.  We put an icon in the status bar.
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // TODO: do we need it over here?
         showMyNotification();
 
         // Creates the thread running the camera service.
@@ -73,13 +72,13 @@ public class MyService extends Service {
                     @Override
                     public void onSensorChanged(SensorEvent event) {
                         //Check for any x-y movement that isn't just noise.
-                        if((event.values[0] < -1 || event.values[0] > 1) || (event.values[1] < -1 || event.values[1] > 1)){
+                        if((event.values[0] < -1 || event.values[0] > 1) || (event.values[1] < -1 || event.values[1] > 9.81)){
                             T1 = new Date();
                             //If it has been 30 or more seconds since the app was started, note movement
-                            if((T1.getTime() - T0.getTime()) / 1000 > 5 && !recorded){
+                            if((T1.getTime() - T0.getTime()) / 1000 > 30 && !recorded){
+                                Log.i("LOG_TAG","first_accel changed");
                                 first_accel_time = T1;
                                 recorded = true;
-                                Log.i("LOG_TAG","first_accel changed");
                             }
                         }
                     }
@@ -139,7 +138,6 @@ public class MyService extends Service {
     }
 
     // function to tell task to update data when clear button is clicked
-    // TODO: sync reset??
     public void resetData()
     {
         Log.i(LOG_TAG, "resetData()");
@@ -174,20 +172,14 @@ public class MyService extends Service {
      */
     @SuppressWarnings("deprecation")
     private void showMyNotification() {
-
-        // Creates a notification.
-        Notification notification = new Notification(
-                R.mipmap.ic_launcher,
-                getString(R.string.my_service_started),
-                System.currentTimeMillis());
-
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification.Builder builder = new Notification.Builder(this);
         builder.setContentIntent(pendingIntent);
-        builder.setNumber(100);
-//        notification.setLatestEventInfo(this, getText(R.string.notification_title),
-//                getText(R.string.my_service_running), pendingIntent);
+        builder.build();
+
+        Notification notification = new Notification();
+        notification = builder.getNotification();
         startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
